@@ -1,3 +1,4 @@
+// Ensure you include OpenCV.js in your HTML for this to work
 document.getElementById('verify-button').addEventListener('click', async () => {
     const input = document.getElementById('file-input');
     const resultsDiv = document.getElementById('results');
@@ -32,20 +33,20 @@ function verifyImage(img, metadata) {
         return true; // It's cheating
     }
 
-    // Analyze image properties
+    // Analyze image properties using OpenCV
     const hasEditingArtifacts = analyzeImageForEdits(img);
     return hasEditingArtifacts; // Return true if artifacts suggest editing
 }
 
 // Placeholder function to extract metadata
 async function getMetadata(file) {
-    // Ideally, you would implement this function to extract actual metadata
+    // Replace this with actual metadata extraction logic
     return {
         cameraMake: "Canon",
         cameraModel: "EOS 80D",
         dateTaken: "2024-01-01T10:00:00Z",
         software: "Adobe Photoshop", // Example of software used to edit
-        // Include other metadata fields as needed
+        modificationDate: "2024-01-02T10:00:00Z", // Add modification date for checking
     };
 }
 
@@ -62,26 +63,38 @@ function metadataIsEdited(metadata) {
         return true; // If known editing software is detected, consider it cheating
     }
 
-    // Check if the date taken is unusually recent compared to the modification date
-    // This requires having a modification date field
-    // if (metadata.modificationDate && new Date(metadata.modificationDate) > new Date(metadata.dateTaken)) {
-    //     return true; // The image may have been edited recently
-    // }
+    // Check if modification date is after the date taken
+    if (new Date(metadata.modificationDate) > new Date(metadata.dateTaken)) {
+        return true; // The image may have been edited recently
+    }
 
     return false; // No signs of editing found
 }
 
-// Function for analyzing the image for artifacts
+// Function for analyzing the image for artifacts using OpenCV
 function analyzeImageForEdits(img) {
-    // Simple analysis: Check dimensions and some basic characteristics
-    if (img.width < 100 || img.height < 100) {
-        return true; // An image that is too small might be suspicious
-    }
+    // Create a canvas to process the image
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
 
-    // Example: Check for uniformity in pixel colors
-    // (This would require more complex analysis, possibly using OpenCV)
+    // Use OpenCV to analyze the image
+    const src = cv.imread(canvas);
+    const dst = new cv.Mat();
+    
+    // Convert to grayscale and apply edge detection
+    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
+    cv.Canny(src, dst, 50, 100);
 
-    // More advanced analysis can be added here
-    // For example, checking for unusual pixel patterns or edge artifacts
-    return false; // Placeholder; adjust based on your analysis
+    // Analyze edges for irregularities (could indicate editing)
+    const nonZeroCount = cv.countNonZero(dst);
+    
+    // Basic thresholding: if too many edges detected, it could indicate editing
+    const threshold = 100; // Set this threshold based on testing
+    src.delete(); // Clean up memory
+    dst.delete();
+
+    return nonZeroCount > threshold; // Adjust this logic based on real tests
 }
