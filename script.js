@@ -1,4 +1,4 @@
-// Ensure you include OpenCV.js in your HTML for this to work
+// Add your OpenCV.js script in your HTML file for this to work
 document.getElementById('verify-button').addEventListener('click', async () => {
     const input = document.getElementById('file-input');
     const resultsDiv = document.getElementById('results');
@@ -57,7 +57,7 @@ function metadataIsEdited(metadata) {
         return true; // Missing metadata can indicate editing
     }
 
-    // Check for editing software
+    // Check for known editing software
     const editingSoftwareList = ["Adobe Photoshop", "GIMP", "Paint.NET"];
     if (editingSoftwareList.includes(metadata.software)) {
         return true; // If known editing software is detected, consider it cheating
@@ -92,7 +92,7 @@ function analyzeImageForEdits(img) {
     const nonZeroCount = cv.countNonZero(dst);
     
     // Basic thresholding: if too many edges detected, it could indicate editing
-    const threshold = 100; // Set this threshold based on testing
+    const threshold = Math.floor(src.rows * src.cols * 0.05); // Adjust threshold to a percentage of total pixels
     src.delete(); // Clean up memory
     dst.delete();
 
