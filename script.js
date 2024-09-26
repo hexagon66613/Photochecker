@@ -32,46 +32,48 @@ function verifyImage(img, metadata) {
         return true; // It's cheating
     }
 
-    // Check image properties
+    // Analyze image properties
     const hasEditingArtifacts = analyzeImageForEdits(img);
     return hasEditingArtifacts; // Return true if artifacts suggest editing
 }
 
 // Placeholder function to extract metadata
 async function getMetadata(file) {
-    // This should be replaced with actual metadata extraction code
+    // Ideally, you would implement this function to extract actual metadata
+    // For demonstration, return a mock object with more realistic fields
     return {
         cameraMake: "Canon",
         cameraModel: "EOS 80D",
         dateTaken: "2024-01-01T10:00:00Z",
-        // Add other fields as needed
+        software: "Adobe Photoshop", // Example of software used to edit
+        // Include other metadata fields as needed
     };
 }
 
 // Function to check metadata for edits
 function metadataIsEdited(metadata) {
-    // Implement logic to check for anomalies in the metadata
-    // Example: Check if important fields are missing or timestamps are suspicious
-    const requiredFields = ['cameraMake', 'cameraModel', 'dateTaken'];
-    for (const field of requiredFields) {
-        if (!metadata[field]) {
-            return true; // Missing metadata can indicate editing
-        }
+    // Check for missing important fields
+    if (!metadata.cameraMake || !metadata.cameraModel || !metadata.dateTaken) {
+        return true; // Missing metadata can indicate editing
     }
     
-    // Additional checks can be added based on your criteria
-    return false; // Placeholder; change based on your criteria
+    // Check for editing software
+    if (metadata.software && metadata.software !== "Canon") {
+        return true; // If editing software is detected, consider it cheating
+    }
+
+    // Add more checks as necessary based on your criteria
+    return false; // No signs of editing found
 }
 
-// Placeholder function for analyzing the image for artifacts
+// Function for analyzing the image for artifacts
 function analyzeImageForEdits(img) {
-    // Implement analysis logic here; for example:
-    // Check for unusual pixel patterns or artifacts
-    // Here’s a simple check for dimensions or unusual characteristics
+    // Simple analysis: Check dimensions and some basic characteristics
     if (img.width < 100 || img.height < 100) {
         return true; // An image that is too small might be suspicious
     }
-    
-    // More sophisticated checks should be added
+
+    // More advanced analysis can be added here
+    // For example, checking for unusual pixel patterns or edge artifacts
     return false; // Placeholder; adjust based on your analysis
 }
