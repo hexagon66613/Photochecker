@@ -40,7 +40,6 @@ function verifyImage(img, metadata) {
 // Placeholder function to extract metadata
 async function getMetadata(file) {
     // Ideally, you would implement this function to extract actual metadata
-    // For demonstration, return a mock object with more realistic fields
     return {
         cameraMake: "Canon",
         cameraModel: "EOS 80D",
@@ -56,13 +55,19 @@ function metadataIsEdited(metadata) {
     if (!metadata.cameraMake || !metadata.cameraModel || !metadata.dateTaken) {
         return true; // Missing metadata can indicate editing
     }
-    
+
     // Check for editing software
-    if (metadata.software && metadata.software !== "Canon") {
-        return true; // If editing software is detected, consider it cheating
+    const editingSoftwareList = ["Adobe Photoshop", "GIMP", "Paint.NET"];
+    if (editingSoftwareList.includes(metadata.software)) {
+        return true; // If known editing software is detected, consider it cheating
     }
 
-    // Add more checks as necessary based on your criteria
+    // Check if the date taken is unusually recent compared to the modification date
+    // This requires having a modification date field
+    // if (metadata.modificationDate && new Date(metadata.modificationDate) > new Date(metadata.dateTaken)) {
+    //     return true; // The image may have been edited recently
+    // }
+
     return false; // No signs of editing found
 }
 
@@ -72,6 +77,9 @@ function analyzeImageForEdits(img) {
     if (img.width < 100 || img.height < 100) {
         return true; // An image that is too small might be suspicious
     }
+
+    // Example: Check for uniformity in pixel colors
+    // (This would require more complex analysis, possibly using OpenCV)
 
     // More advanced analysis can be added here
     // For example, checking for unusual pixel patterns or edge artifacts
